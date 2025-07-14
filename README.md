@@ -1,36 +1,280 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js 커뮤니티 프로젝트
 
-## Getting Started
+Next.js와 Supabase를 활용한 실시간 커뮤니티 웹 애플리케이션 개발 실습
 
-First, run the development server:
+## 프로젝트 목표
+
+현대적인 웹 개발 기술을 활용하여 완전한 커뮤니티 플랫폼을 구축하고, 실무에서 사용되는 핵심 기능들을 단계적으로 학습합니다.
+
+## 기술 스택
+
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL, 인증, 실시간 구독)
+- **배포**: Vercel
+
+## 학습 커리큘럼
+
+### 📚 1단계: 프로젝트 설정 및 기초 환경 구성
+
+**목표**: 개발 환경 구축과 기본 프로젝트 구조 이해
+
+**체크리스트**:
+
+- [x] Next.js 프로젝트 생성 (`create-next-app`)
+- [x] TypeScript 설정 확인
+- [x] Tailwind CSS 설정 확인
+- [x] Supabase 프로젝트 생성
+- [x] 환경 변수 설정 (`.env.local`)
+- [x] Supabase 클라이언트 설정
+- [x] 기본 폴더 구조 이해
+
+**학습 포인트**:
+
+- Next.js App Router 구조
+- 환경 변수 관리
+- TypeScript 기본 설정
+
+---
+
+### 🔐 2단계: 인증 시스템 구현
+
+**목표**: 회원가입, 로그인, 로그아웃 기능 구현
+
+**체크리스트**:
+
+- [ ] 회원가입 폼 컴포넌트 생성
+- [ ] 로그인 폼 컴포넌트 생성
+- [ ] 로그아웃 버튼 컴포넌트 생성
+- [ ] 사용자 상태 관리 훅 (`useUser`) 구현
+- [ ] 인증 상태에 따른 UI 변경
+- [ ] 에러 처리 및 로딩 상태 관리
+- [ ] 폼 유효성 검증
+
+**학습 포인트**:
+
+- Supabase Auth 활용
+- React 상태 관리
+- 클라이언트 사이드 인증 처리
+- 사용자 경험 개선
+
+---
+
+### 🛡️ 3단계: Protected Routes 구현
+
+**목표**: 인증된 사용자만 접근 가능한 페이지 구현
+
+**체크리스트**:
+
+- [ ] 로그인 페이지 (`/login`) 생성
+- [ ] 보호된 페이지 (`/protected`) 생성
+- [ ] 인증 가드 로직 구현
+- [ ] 미인증 사용자 리디렉션 처리
+- [ ] 로딩 상태 처리
+- [ ] 라우트 보호 컴포넌트 구현
+
+**학습 포인트**:
+
+- Next.js 라우팅 시스템
+- 조건부 렌더링
+- 라우트 보호 패턴
+
+---
+
+### 🌐 4단계: OAuth 소셜 로그인 (예정)
+
+**목표**: 소셜 로그인 기능 추가
+
+**체크리스트**:
+
+- [ ] Google OAuth 설정
+- [ ] GitHub OAuth 설정
+- [ ] 소셜 로그인 버튼 컴포넌트
+- [ ] 계정 연동 처리
+- [ ] 프로필 정보 동기화
+- [ ] 다중 인증 방식 지원
+
+**학습 포인트**:
+
+- OAuth 2.0 이해
+- 제3자 인증 서비스 연동
+- 사용자 프로필 관리
+
+---
+
+### 💬 5단계: 커뮤니티 기본 기능 구현 (예정)
+
+**목표**: 게시글과 댓글 시스템 구현
+
+**체크리스트**:
+
+- [ ] 게시글 목록 페이지
+- [ ] 게시글 작성 페이지
+- [ ] 게시글 상세 페이지
+- [ ] 게시글 수정/삭제 기능
+- [ ] 댓글 작성 기능
+- [ ] 댓글 목록 표시
+- [ ] 댓글 수정/삭제 기능
+- [ ] 페이지네이션 구현
+- [ ] 검색 기능
+
+**학습 포인트**:
+
+- CRUD 기능 구현
+- 데이터베이스 관계 설정
+- 상태 관리 최적화
+- 사용자 경험 향상
+
+---
+
+### ⚡ 6단계: 실시간 기능 구현 (예정)
+
+**목표**: 실시간 업데이트 및 알림 시스템
+
+**체크리스트**:
+
+- [ ] Supabase 실시간 구독 설정
+- [ ] 실시간 댓글 업데이트
+- [ ] 실시간 알림 시스템
+- [ ] 온라인 사용자 표시
+- [ ] 실시간 채팅 기능
+- [ ] 푸시 알림 구현
+
+**학습 포인트**:
+
+- WebSocket 이해
+- 실시간 데이터 동기화
+- 사용자 상호작용 개선
+
+---
+
+### 📊 7단계: 고급 기능 구현 (예정)
+
+**목표**: 파일 업로드, 관리자 기능 등 고급 기능 구현
+
+**체크리스트**:
+
+- [ ] 이미지 업로드 기능
+- [ ] 파일 관리 시스템
+- [ ] 사용자 프로필 관리
+- [ ] 관리자 대시보드
+- [ ] 게시글 신고 기능
+- [ ] 사용자 권한 관리
+- [ ] 통계 및 분석 기능
+
+**학습 포인트**:
+
+- 파일 업로드 처리
+- 권한 기반 접근 제어
+- 데이터 분석 및 시각화
+
+---
+
+### 🚀 8단계: 심화 기능 및 최적화 (예정)
+
+**목표**: 성능 최적화 및 고급 기능 추가
+
+**체크리스트**:
+
+- [ ] SEO 최적화
+- [ ] 성능 모니터링
+- [ ] 코드 스플리팅
+- [ ] 이미지 최적화
+- [ ] 캐싱 전략 구현
+- [ ] 웹 크롤링 기능
+- [ ] 결제 시스템 연동
+- [ ] 모바일 반응형 개선
+
+**학습 포인트**:
+
+- 웹 성능 최적화
+- 외부 API 연동
+- 결제 시스템 이해
+- 모바일 최적화
+
+---
+
+### 📦 9단계: 배포 및 운영 (예정)
+
+**목표**: 프로덕션 환경 배포 및 운영 관리
+
+**체크리스트**:
+
+- [ ] Vercel 배포 설정
+- [ ] 도메인 연결
+- [ ] 환경 변수 관리
+- [ ] 모니터링 설정
+- [ ] 로그 관리
+- [ ] 백업 전략 수립
+- [ ] 성능 모니터링
+
+**학습 포인트**:
+
+- 배포 자동화
+- 운영 환경 관리
+- 모니터링 및 로깅
+
+---
+
+## 개발 환경 설정
+
+### 필수 도구
+
+- Node.js 18 이상
+- npm 또는 yarn
+- Git
+- VS Code (권장)
+
+### 프로젝트 시작하기
 
 ```bash
+# 프로젝트 클론
+git clone <repository-url>
+cd next-community-exam
+
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 학습 가이드
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 권장 학습 순서
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. 각 단계별 체크리스트를 순서대로 완료
+2. 기능 구현 전 설계 단계 거치기
+3. 코드 리뷰 및 리팩토링
+4. 테스트 코드 작성 (선택사항)
 
-## Learn More
+### 참고 자료
 
-To learn more about Next.js, take a look at the following resources:
+- [Next.js 공식 문서](https://nextjs.org/docs)
+- [Supabase 공식 문서](https://supabase.com/docs)
+- [TypeScript 공식 문서](https://www.typescriptlang.org/docs)
+- [Tailwind CSS 공식 문서](https://tailwindcss.com/docs)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 프로젝트 구조
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+next-community-exam/
+├── src/
+│   ├── app/                 # Next.js 앱 라우터
+│   ├── components/          # 재사용 가능한 컴포넌트
+│   ├── lib/                 # 유틸리티 함수 및 설정
+│   └── types/               # TypeScript 타입 정의
+├── public/                  # 정적 파일
+├── .env.local              # 환경 변수
+└── README.md               # 프로젝트 문서
+```
 
-## Deploy on Vercel
+## 기여 방법
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. 이슈 확인 및 생성
+2. 기능 브랜치 생성
+3. 코드 작성 및 테스트
+4. Pull Request 생성
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 라이선스
+
+이 프로젝트는 MIT 라이선스를 따릅니다.
