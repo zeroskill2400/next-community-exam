@@ -1,24 +1,24 @@
 "use client";
 
 import { supabase } from "./supabaseClient";
+import { useUserStore } from "./userStore";
 
 export function useUserData() {
+  const { setUser, setLoading, clearUser } = useUserStore();
+
   const getUserData = async () => {
-    try {
-      console.log("🔍 사용자 데이터 조회 시작...");
+    setLoading(true);
 
-      const { data, error } = await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("❌ 사용자 데이터 조회 실패:", error.message);
-        return { success: false, error: error.message };
-      }
-
-      console.log("✅ 사용자 데이터 조회 성공:", data.user);
+    if (data.user) {
+      setUser(data.user);
+      setLoading(false);
       return { success: true, user: data.user };
-    } catch (error) {
-      console.error("💥 예외 발생:", error);
-      return { success: false, error: "사용자 데이터 조회 중 오류 발생" };
+    } else {
+      clearUser();
+      setLoading(false);
+      return { success: false, error: "사용자 없음" };
     }
   };
 

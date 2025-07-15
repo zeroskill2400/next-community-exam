@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabaseClient";
 import { useUserData } from "../lib/useUserData";
 
@@ -11,6 +12,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const router = useRouter();
   const { getUserData } = useUserData();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,15 +34,11 @@ export default function LoginForm() {
         setEmail("");
         setPassword("");
 
-        // 로그인 성공 후 사용자 데이터 조회
-        console.log("🎉 로그인 성공! 사용자 데이터 조회 시작...");
-        const userData = await getUserData();
+        // Zustand에 사용자 저장
+        await getUserData();
 
-        if (userData.success) {
-          console.log("🔥 최종 사용자 정보:", userData.user);
-        } else {
-          console.error("⚠️ 사용자 데이터 조회 실패:", userData.error);
-        }
+        // 메인 페이지로 이동
+        router.push("/");
       }
     } catch (error) {
       setError("로그인 중 오류가 발생했습니다.");
