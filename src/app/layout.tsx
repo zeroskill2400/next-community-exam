@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,37 +30,7 @@ export default function RootLayout({
       >
         <div className="min-h-screen">
           {/* 헤더 */}
-          <header className="bg-white shadow-sm border-b">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center py-4">
-                <div className="flex items-center">
-                  <h1 className="text-xl font-bold text-gray-900">
-                    Next.js 커뮤니티
-                  </h1>
-                </div>
-                <nav className="flex space-x-4">
-                  <a
-                    href="/"
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    홈
-                  </a>
-                  <a
-                    href="/signup"
-                    className="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    회원가입
-                  </a>
-                  <a
-                    href="/login"
-                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    로그인
-                  </a>
-                </nav>
-              </div>
-            </div>
-          </header>
+          <Header />
 
           {/* 메인 콘텐츠 */}
           <main className="flex-1">{children}</main>
