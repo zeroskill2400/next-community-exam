@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/lib/userStore";
+import { useCartStore } from "@/lib/cartStore";
 import { supabase } from "@/lib/supabaseClient";
 
 export default function Navigation() {
   const { user, clearUser } = useUserStore();
+  const { totalItems } = useCartStore();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -30,6 +32,25 @@ export default function Navigation() {
         className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
       >
         홈
+      </a>
+
+      <a
+        href="/products"
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+      >
+        상품목록
+      </a>
+
+      <a
+        href="/cart"
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium relative"
+      >
+        장바구니
+        {totalItems > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {totalItems}
+          </span>
+        )}
       </a>
 
       {user ? (
