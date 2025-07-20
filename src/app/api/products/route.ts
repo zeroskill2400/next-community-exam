@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export interface Product {
   id: string;
@@ -17,47 +20,51 @@ export interface Product {
 // GET - 상품 목록 조회
 export async function GET(request: NextRequest) {
   try {
+    console.log("API 호출됨 - 상품 목록 조회");
+
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const limit = searchParams.get("limit");
     const offset = searchParams.get("offset");
 
-    let query = supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
+    console.log("검색 파라미터:", { category, limit, offset });
 
-    // 카테고리 필터
+    // Prisma를 사용한 쿼리
+    const whereClause: any = {
+      is_active: true,
+    };
+
     if (category) {
-      query = query.eq("category", category);
+      whereClause.category = category;
     }
 
-    // 페이지네이션
-    if (limit) {
-      const limitNum = parseInt(limit);
-      const offsetNum = offset ? parseInt(offset) : 0;
-      query = query.range(offsetNum, offsetNum + limitNum - 1);
-    }
+    const limitNum = limit ? parseInt(limit) : undefined;
+    const offsetNum = offset ? parseInt(offset) : undefined;
 
-    const { data: products, error } = await query;
+    console.log("WHERE 절:", whereClause);
 
-    if (error) {
-      console.error("상품 조회 오류:", error);
-      return NextResponse.json(
-        { error: "상품을 불러오는데 실패했습니다." },
-        { status: 500 }
-      );
-    }
+    const products = await prisma.products.findMany({
+      where: whereClause,
+      orderBy: {
+        created_at: "desc",
+      },
+      take: limitNum,
+      skip: offsetNum,
+    });
+
+    console.log("Prisma 조회된 상품 개수:", products?.length || 0);
 
     return NextResponse.json({
       products: products || [],
       success: true,
     });
   } catch (error) {
-    console.error("API 오류:", error);
+    console.error("API 오류 상세:", error);
     return NextResponse.json(
-      { error: "서버 오류가 발생했습니다." },
+      {
+        error: "서버 오류가 발생했습니다.",
+        details: error instanceof Error ? error.message : "알 수 없는 오류",
+      },
       { status: 500 }
     );
   }
