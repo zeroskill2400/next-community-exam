@@ -1,6 +1,7 @@
 "use client";
 
 import { useCartStore } from "@/lib/cartStore";
+import { useRouter } from "next/navigation";
 
 export default function CartPage() {
   const {
@@ -11,6 +12,8 @@ export default function CartPage() {
     removeItem,
     clearCart,
   } = useCartStore();
+
+  const router = useRouter();
 
   if (items.length === 0) {
     return (
@@ -205,7 +208,10 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <button className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-3">
+              <button
+                onClick={() => router.push("/checkout")}
+                className="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-3"
+              >
                 주문하기
               </button>
 
