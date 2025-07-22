@@ -85,68 +85,114 @@ export default function CheckoutPage() {
   // - totalPrice: 가격이 변경되면 재실행
   // - router: Next.js 라우터 인스턴스 (변경되지 않지만 린터 경고 방지)
 
-  // 결제 요청 처리 함수
+  // 결제 요청 함수
+  // 사용자가 "결제하기" 버튼을 클릭했을 때 호출됨
   const handlePayment = async () => {
-    // 결제 위젯이 아직 로드되지 않았으면 중단
-    if (!paymentWidget) {
-      alert("결제 준비 중입니다. 잠시만 기다려주세요.");
+    // 결제 위젯이 아직 로드되지 않았거나 UI 준비가 완료되지 않았으면 중단
+    // ready 상태를 확인하는 이유: UI 렌더링이 완료되어야 결제 요청 가능
+    if (!paymentWidget || !ready) {
+      alert("결제 준비가 완료되지 않았습니다. 잠시 후 다시 시도해주세요.");
       return;
     }
 
+    // 주문번호 생성 (결제 취소 시에도 사용하기 위해 try 밖에서 선언)
+    // 형식: "ORDER_" + 현재 시간의 밀리초 + 4자리 랜덤 숫자
+    // 예: ORDER_1640995200000_1234
+    // 변수 순서 변경 이유: try-catch에서 orderId를 catch 블록에서도 사용하기 때문
+    const orderId = `ORDER_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+
+    // 주문명 생성 (사용자가 결제창에서 보게 될 상품명)
+    // 교육적 포인트: 조건부 로직으로 단일/복수 상품 구분
+    // - 상품이 1개인 경우: 실제 상품명 표시
+    // - 상품이 여러 개인 경우: "대표상품명 외 N건" 형태로 표시
+    const orderName =
+      items.length === 1
+        ? items[0].name // 단일 상품: 정확한 상품명
+        : `${items[0].name} 외 ${items.length - 1}건`; // 복수 상품: 대표상품 + 개수
+
     try {
-      // 주문 ID 생성 (고유해야 함)
-      // Date.now(): 현재 시간을 밀리초로 변환
-      const orderId = `ORDER_${Date.now()}`;
-
-      // 주문명 생성 (사용자가 보게 될 상품명)
-      const orderName =
-        items.length === 1
-          ? items[0].name
-          : `${items[0].name} 외 ${items.length - 1}건`;
-
-      // 결제 요청
-      // requestPayment: 실제 결제창을 띄우는 메서드
+      // Toss Payments에 결제 요청
+      // requestPayment는 Promise를 반환하는 비동기 함수
+      // 결제창이 열리고 사용자가 결제를 완료하거나 취소할 때까지 대기
       await paymentWidget.requestPayment({
-        // 필수 파라미터들:
-        orderId, // 주문 고유 ID (6-64자, 영문/숫자/-/_만 가능)
-        orderName, // 주문명 (최대 100자)
+        // === 필수 파라미터들 ===
+        // orderId: 주문 고유 ID (6-64자, 영문/숫자/-/_만 가능)
+        // - 중복되면 안 됨 (같은 orderId로 재결제 시 오류)
+        // - 주문 관리, 결제 조회, 취소 시 사용되는 핵심 식별자
+        orderId,
 
-        // 리다이렉트 URL (결제 완료 후 이동할 페이지)
+        // orderName: 주문명 (최대 100자)
+        // - 결제창과 영수증에 표시되는 상품명
+        // - 사용자가 무엇을 구매하는지 명확히 알 수 있어야 함
+        orderName,
+
+        // === 리다이렉트 URL (결제 완료 후 이동할 페이지) ===
         // window.location.origin: 현재 도메인 (예: https://myshop.com)
-        successUrl: `${window.location.origin}/success`,
-        failUrl: `${window.location.origin}/fail`,
+        // 프로덕션에서는 환경변수로 관리하는 것이 좋음
+        successUrl: `${window.location.origin}/success`, // 결제 성공 시
+        failUrl: `${window.location.origin}/fail`, // 결제 실패 시
 
-        // 선택 파라미터들 (입력하면 결제창에 자동 입력됨):
-        customerName: "테스트 고객",
-        customerEmail: "test@example.com",
-        customerMobilePhone: "01012345678",
+        // === 선택 파라미터들 (입력하면 결제창에 자동 입력됨) ===
+        // 실제 서비스에서는 로그인한 사용자 정보에서 가져와야 함
+        // 현재는 테스트용 더미 데이터 사용
+        customerName: "김토스", // 고객명 (결제자 정보)
+        customerEmail: "customer@example.com", // 고객 이메일 (영수증 발송용)
+
+        // customerMobilePhone: "01012345678",           // 휴대폰 번호 (선택사항)
+        // 주석 처리 이유: 테스트 시 불필요한 정보 입력 생략
       });
 
-      // 결제창이 열리면 여기서 함수 실행이 멈춤
-      // 사용자가 결제를 완료하거나 취소하면 successUrl 또는 failUrl로 이동
+      // requestPayment가 성공하면 Toss가 자동으로 successUrl로 리다이렉트
+      // 따라서 이 부분은 일반적으로 실행되지 않음
+      // 하지만 디버깅을 위해 로그는 남겨둠
+      console.log("결제 요청이 완료되었습니다.");
     } catch (error: any) {
-      // 에러 처리
-      console.error("결제 요청 실패:", error);
+      // 결제 과정에서 발생하는 모든 에러를 처리
+      // error 객체의 타입을 any로 설정하는 이유: Toss SDK의 에러 타입이 명확하지 않음
+      console.error("결제 실패:", error);
 
-      // 사용자가 결제창을 닫은 경우
-      // Toss는 자동으로 failUrl로 이동시키지 않으므로 수동 처리
-      if (
-        error.code === "PAY_PROCESS_CANCELED" ||
-        error.code === "USER_CANCEL"
-      ) {
-        // URLSearchParams: URL 쿼리스트링을 쉽게 만들어주는 API
-        router.push(
-          `/fail?code=${error.code}&message=${encodeURIComponent(
-            "결제가 취소되었습니다"
-          )}`
-        );
+      // 에러 객체에서 정보 추출
+      // Toss Payments SDK에서 제공하는 에러 형식
+      // code: 에러 식별 코드, message: 사용자용 에러 메시지
+      const errorCode = error?.code || "UNKNOWN_ERROR";
+      const errorMessage = error?.message || "알 수 없는 오류가 발생했습니다.";
+
+      // 사용자 취소 관련 에러 코드들
+      // 이런 경우에는 Toss가 자동으로 failUrl로 리다이렉트하지 않으므로 수동으로 처리
+      // 배열로 관리하는 이유: 취소 관련 코드가 여러 개이고 향후 추가될 수 있음
+      const userCancelCodes = [
+        "PAY_PROCESS_CANCELED", // 결제 과정에서 사용자가 취소 (X 버튼 클릭 등)
+        "USER_CANCEL", // 사용자가 직접 취소 (취소 버튼 클릭)
+        "PAY_PROCESS_ABORTED", // 결제 프로세스 중단 (브라우저 닫기 등)
+      ];
+
+      // 사용자 취소인 경우 fail 페이지로 수동 리다이렉트
+      if (userCancelCodes.includes(errorCode)) {
+        console.log("사용자에 의한 결제 취소 감지, fail 페이지로 이동");
+
+        // URL 파라미터로 에러 정보 전달
+        // new URL 사용 이유: searchParams API로 안전한 URL 인코딩 가능
+        const failUrl = new URL("/fail", window.location.origin);
+        failUrl.searchParams.append("code", errorCode);
+        failUrl.searchParams.append("message", errorMessage);
+        failUrl.searchParams.append("orderId", orderId);
+
+        // 페이지 이동 (replace 사용으로 뒤로가기 시 결제 페이지로 돌아가지 않음)
+        // router.push 대신 window.location.replace 사용 이유:
+        // - 결제 취소 후 뒤로가기로 결제 페이지 재접근 방지
+        // - 브라우저 히스토리에서 결제 페이지 제거
+        window.location.replace(failUrl.toString());
       } else {
-        // 기타 에러 (네트워크 오류 등)
-        router.push(
-          `/fail?code=UNKNOWN_ERROR&message=${encodeURIComponent(
-            "결제 중 오류가 발생했습니다"
-          )}`
-        );
+        // 기타 에러인 경우에도 fail 페이지로 이동
+        // 네트워크 오류, 서버 오류, 카드 오류 등
+        console.log("결제 시스템 오류 감지, fail 페이지로 이동");
+
+        const failUrl = new URL("/fail", window.location.origin);
+        failUrl.searchParams.append("code", errorCode);
+        failUrl.searchParams.append("message", errorMessage);
+        failUrl.searchParams.append("orderId", orderId);
+
+        window.location.replace(failUrl.toString());
       }
     }
   };
