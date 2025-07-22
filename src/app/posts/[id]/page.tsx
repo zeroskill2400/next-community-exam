@@ -5,7 +5,24 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { useUserStore } from "@/lib/userStore";
 
-// 게시글 타입 정의 - TypeScript의 타입 안정성 활용
+// 댓글 타입 정의
+interface Comment {
+  id: string;
+  content: string;
+  post_id: string;
+  author_id: string;
+  created_at: string;
+  updated_at: string;
+  users: {
+    id: string;
+    email: string;
+    name: string;
+    nickname: string;
+    avatar_url: string;
+  } | null;
+}
+
+// 게시글 타입 정의 - 댓글 포함
 interface Post {
   id: string;
   title: string;
@@ -19,6 +36,7 @@ interface Post {
     nickname: string;
     avatar_url: string;
   } | null;
+  comments?: Comment[];
 }
 
 /**
@@ -60,6 +78,10 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // 댓글 상태 추가
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentCount, setCommentCount] = useState(0);
+
   const { user } = useUserStore(); // useUserStore에서 user 객체 가져오기
 
   // 컴포넌트 마운트 시 게시글 조회 - useEffect 패턴
@@ -69,40 +91,29 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
     }
   }, [resolvedParams.id]);
 
-  // 게시글 조회 함수 - Supabase JOIN 쿼리 활용
+  // 게시글 + 댓글 조회 함수 - 통합 API 활용
   const fetchPost = async (postId: string) => {
     try {
-      console.log("Fetching post:", postId);
+      console.log("게시글 + 댓글 조회:", postId);
 
-      // Supabase에서 posts와 users 테이블 JOIN 조회
-      const { data, error: supabaseError } = await supabase
-        .from("posts")
-        .select(
-          `
-          *,
-          users:author_id (
-            id,
-            email,
-            name,
-            nickname,
-            avatar_url
-          )
-        `
-        )
-        .eq("id", postId) // WHERE 조건
-        .single(); // 단일 결과 반환
+      // 새로운 posts/[id] API로 게시글과 댓글을 한 번에 조회
+      const response = await fetch(`/api/posts/${postId}`);
+      const data = await response.json();
 
-      if (supabaseError) {
-        console.error("Supabase error:", supabaseError);
-        throw supabaseError;
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "게시글을 찾을 수 없습니다.");
       }
 
-      if (!data) {
-        throw new Error("게시글을 찾을 수 없습니다.");
-      }
+      console.log("게시글 + 댓글 조회 완료:", data);
 
-      console.log("Post fetched:", data);
-      setPost(data);
+      // 게시글 데이터 설정
+      setPost(data.post);
+
+      // 댓글 데이터 설정
+      const commentsData = data.post.comments || [];
+      setComments(commentsData);
+      setCommentCount(commentsData.length);
+
       setError(null);
     } catch (error: any) {
       console.error("Error fetching post:", error);
@@ -119,6 +130,18 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
     }
     return (
       post.users.nickname || post.users.name || post.users.email.split("@")[0]
+    );
+  };
+
+  // 댓글 작성자 이름 표시
+  const getCommentAuthorName = (comment: Comment) => {
+    if (!comment.users) {
+      return `사용자 ${comment.author_id.substring(0, 8)}...`;
+    }
+    return (
+      comment.users.nickname ||
+      comment.users.name ||
+      comment.users.email.split("@")[0]
     );
   };
 
@@ -249,6 +272,8 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
                     <span>작성일: {formatTimeAgo(post.created_at)}</span>
                     <span>•</span>
                     <span>조회수: {Math.floor(Math.random() * 200) + 50}</span>
+                    <span>•</span>
+                    <span>댓글: {commentCount}</span>
                   </div>
                 </div>
               </div>
@@ -298,7 +323,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
                   </button>
                   <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors">
                     <span>💬</span>
-                    <span>댓글 {Math.floor(Math.random() * 10)}</span>
+                    <span>댓글 {commentCount}</span>
                   </button>
                   <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-green-500 hover:bg-green-50 rounded-lg transition-colors">
                     <span>🔗</span>
@@ -319,10 +344,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
           {/* 댓글 섹션 영역 - 추후 확장 */}
           <div className="mt-8 bg-white rounded-xl shadow-sm border p-8">
             <h3 className="text-xl font-bold text-black mb-6">
-              댓글{" "}
-              <span className="text-blue-600">
-                {Math.floor(Math.random() * 10)}
-              </span>
+              댓글 <span className="text-blue-600">{commentCount}</span>
             </h3>
 
             {/* 로그인 사용자만 댓글 작성 가능 */}
@@ -363,9 +385,61 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
             )}
 
             {/* 댓글 목록 영역 */}
-            <div className="text-center py-8 text-gray-500">
-              아직 댓글이 없습니다. 첫 댓글을 작성해보세요! 💬
-            </div>
+            {comments.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                아직 댓글이 없습니다. 첫 댓글을 작성해보세요! 💬
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {comments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0"
+                  >
+                    <div className="flex gap-3">
+                      {/* 댓글 작성자 아바타 */}
+                      {comment.users?.avatar_url ? (
+                        <img
+                          src={comment.users.avatar_url}
+                          alt={`${getCommentAuthorName(comment)}의 아바타`}
+                          className="w-8 h-8 rounded-full border border-gray-200 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-bold text-sm">
+                            {getCommentAuthorName(comment)
+                              .charAt(0)
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex-1">
+                        {/* 댓글 헤더 */}
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="font-medium text-gray-900">
+                            {getCommentAuthorName(comment)}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {formatTimeAgo(comment.created_at)}
+                          </span>
+                          {comment.created_at !== comment.updated_at && (
+                            <span className="text-xs text-gray-400">
+                              (편집됨)
+                            </span>
+                          )}
+                        </div>
+
+                        {/* 댓글 내용 */}
+                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                          {formatContent(comment.content)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
