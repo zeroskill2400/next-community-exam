@@ -81,6 +81,8 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
   // 댓글 상태 추가
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentCount, setCommentCount] = useState(0);
+  const [newComment, setNewComment] = useState(""); // 새 댓글 내용
+  const [isSubmitting, setIsSubmitting] = useState(false); // 댓글 작성 중 상태
 
   const { user } = useUserStore(); // useUserStore에서 user 객체 가져오기
 
@@ -120,6 +122,52 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
       setError(error.message || "게시글을 불러오는 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 댓글 작성 함수
+  const handleCommentSubmit = async () => {
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    if (!newComment.trim()) {
+      alert("댓글 내용을 입력해주세요.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/comments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: newComment.trim(),
+          post_id: resolvedParams.id,
+          author_id: user.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "댓글 작성에 실패했습니다.");
+      }
+
+      // 댓글 작성 성공 - 댓글 목록에 새 댓글 추가
+      setComments([data.comment, ...comments]);
+      setCommentCount(commentCount + 1);
+      setNewComment(""); // 입력 필드 초기화
+
+      console.log("댓글 작성 완료:", data.comment);
+    } catch (error: any) {
+      console.error("댓글 작성 실패:", error);
+      alert(error.message || "댓글 작성 중 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -358,13 +406,20 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
                   </div>
                   <div className="flex-1">
                     <textarea
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-800"
                       rows={3}
                       placeholder="댓글을 입력하세요..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      disabled={isSubmitting}
                     />
                     <div className="flex justify-end mt-2">
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                        댓글 작성
+                      <button
+                        onClick={handleCommentSubmit}
+                        disabled={isSubmitting || !newComment.trim()}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        {isSubmitting ? "작성 중..." : "댓글 작성"}
                       </button>
                     </div>
                   </div>
