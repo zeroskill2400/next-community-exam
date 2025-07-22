@@ -25,25 +25,37 @@ export default function Navigation() {
     }
   };
 
+  // 네비게이션 링크 클릭 핸들러
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
   return (
     <nav className="flex space-x-4">
-      <a
-        href="/"
-        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+      <button
+        onClick={() => handleNavigation("/")}
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
       >
         홈
-      </a>
+      </button>
 
-      <a
-        href="/products"
-        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+      <button
+        onClick={() => handleNavigation("/posts")}
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+      >
+        커뮤니티
+      </button>
+
+      <button
+        onClick={() => handleNavigation("/products")}
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
       >
         상품목록
-      </a>
+      </button>
 
-      <a
-        href="/cart"
-        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium relative"
+      <button
+        onClick={() => handleNavigation("/cart")}
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium relative transition-colors"
       >
         장바구니
         {totalItems > 0 && (
@@ -51,20 +63,20 @@ export default function Navigation() {
             {totalItems}
           </span>
         )}
-      </a>
+      </button>
 
       {user ? (
         // 로그인 상태
         <>
-          <a
-            href="/profile"
-            className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+          <button
+            onClick={() => handleNavigation("/profile")}
+            className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
           >
             회원정보
-          </a>
+          </button>
           <button
             onClick={handleLogout}
-            className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
           >
             로그아웃
           </button>
@@ -72,18 +84,18 @@ export default function Navigation() {
       ) : (
         // 비로그인 상태
         <>
-          <a
-            href="/signup"
-            className="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium"
+          <button
+            onClick={() => handleNavigation("/signup")}
+            className="bg-blue-600 text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors"
           >
             회원가입
-          </a>
-          <a
-            href="/login"
-            className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+          </button>
+          <button
+            onClick={() => handleNavigation("/login")}
+            className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
           >
             로그인
-          </a>
+          </button>
         </>
       )}
     </nav>
