@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // Toss Payments에서 실패 시 전달하는 URL 쿼리 파라미터 타입
@@ -35,7 +35,7 @@ const getErrorMessage = (code: string): string => {
   return errorMessages[code] || "결제 처리 중 오류가 발생했습니다.";
 };
 
-export default function FailPage() {
+function FailPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -210,5 +210,20 @@ export default function FailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function FailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <p className="text-gray-800">로딩 중...</p>
+        </div>
+      </div>
+    }>
+      <FailPageContent />
+    </Suspense>
   );
 }
