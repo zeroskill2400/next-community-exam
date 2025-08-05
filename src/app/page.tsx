@@ -162,6 +162,9 @@ export default function Home() {
                 <p className="text-gray-600">
                   모든 기기에서 완벽한 사용자 경험
                 </p>
+                <p>
+                  vercel test
+                </p>
               </div>
             </div>
           </div>
