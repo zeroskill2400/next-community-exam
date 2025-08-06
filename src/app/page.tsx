@@ -21,7 +21,7 @@ export default function Home() {
       <div className="w-full px-4 sm:px-6 lg:px-8 pt-16 pb-20">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-6xl font-bold text-black mb-6">
-            Next.js 커뮤니티
+            Next.js 커뮤니티!!
           </h1>
           <p className="text-xl text-gray-800 mb-8 max-w-2xl mx-auto">
             최신 기술로 구현된 쇼핑몰과 커뮤니티 플랫폼에서 다양한 제품을
@@ -162,9 +162,7 @@ export default function Home() {
                 <p className="text-gray-600">
                   모든 기기에서 완벽한 사용자 경험
                 </p>
-                <p>
-                  버셀 자동 배포 테스트
-                </p>
+                <p>버셀 자동 배포 테스트</p>
               </div>
             </div>
           </div>
