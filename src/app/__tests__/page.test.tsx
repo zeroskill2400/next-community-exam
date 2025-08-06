@@ -79,7 +79,7 @@ describe("홈페이지 테스트", () => {
 
     // 🔍 screen.getByText(): 화면에서 특정 텍스트를 가진 요소 찾기
     // getByText는 못 찾으면 에러 발생 (테스트 실패)
-    const heading = screen.getByText("Next.js 커뮤니티");
+    const heading = screen.getByText("Next.js 커뮤니티!!");
 
     // ✅ expect().toBeInTheDocument(): 찾은 요소가 문서에 있는지 확인
     // toBeInTheDocument()는 @testing-library/jest-dom이 제공하는 매처
