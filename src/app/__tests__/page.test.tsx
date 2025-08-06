@@ -126,7 +126,7 @@ describe("홈페이지 테스트", () => {
     // "장바구니 확인" 링크가 /cart 페이지로 가는지
     expect(screen.getByText("장바구니 확인")).toHaveAttribute("href", "/cart");
 
-    // "커뮤니티 참여" 링크가 /community 페이지로 가는지
+    // "커뮤니티 참여" 링크가 /community 페이지로 가는지 알아보자
     expect(screen.getByText("커뮤니티 참여")).toHaveAttribute(
       "href",
       "/community"

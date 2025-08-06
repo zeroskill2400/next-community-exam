@@ -163,7 +163,7 @@ export default function Home() {
                   모든 기기에서 완벽한 사용자 경험
                 </p>
                 <p>
-                  vercel test
+                  버셀 자동 배포 테스트
                 </p>
               </div>
             </div>
